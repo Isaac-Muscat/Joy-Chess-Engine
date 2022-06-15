@@ -1,0 +1,6 @@
+*.o
+main-debug
+.replit
+.ccls-cache
+main
+*.nix
