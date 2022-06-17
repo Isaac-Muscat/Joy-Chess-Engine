@@ -1,13 +1,13 @@
 #include "Bitboard.hpp"
 
 namespace JoyChess {
-    Bitboard SQUARE[NUM_SQUARES];
-    Bitboard RANK[NUM_SQUARES];
-    Bitboard FILE[NUM_SQUARES];
-    Bitboard DIAGONAL[NUM_SQUARES];
-    Bitboard ANTIDIAGONAL[NUM_SQUARES];
-    Bitboard KNIGHT_MASK[NUM_SQUARES];
-    Bitboard ADJACENT_MASK[NUM_SQUARES];
+    Bitboard SQUARE[NUM_SQUARES]{0};
+    Bitboard RANK[NUM_SQUARES]{0};
+    Bitboard FILE[NUM_SQUARES]{0};
+    Bitboard DIAGONAL[NUM_SQUARES]{0};
+    Bitboard ANTIDIAGONAL[NUM_SQUARES]{0};
+    Bitboard KNIGHT_MASK[NUM_SQUARES]{0};
+    Bitboard ADJACENT_MASK[NUM_SQUARES]{0};
 
     void InitBitboards() {
         for (int i = 0; i < NUM_SQUARES; i++) {
@@ -52,6 +52,32 @@ namespace JoyChess {
                 row++;
                 col++;
             }
+        }
+        
+        for (int i = 0; i < NUM_SQUARES; i++) {
+            int row = Row(i);
+            int col = Col(i);
+            if (row > 1 && col > 0) KNIGHT_MASK[i] |= BIT(i - 17);
+            if (row > 1 && col < 7) KNIGHT_MASK[i] |= BIT(i - 15);
+            if (row > 0 && col > 1) KNIGHT_MASK[i] |= BIT(i - 10);
+            if (row > 0 && col < 6) KNIGHT_MASK[i] |= BIT(i - 6);
+            if (row < 7 && col > 1) KNIGHT_MASK[i] |= BIT(i + 6);
+            if (row < 7 && col < 6) KNIGHT_MASK[i] |= BIT(i + 10);
+            if (row < 6 && col > 0) KNIGHT_MASK[i] |= BIT(i + 15);
+            if (row < 6 && col < 7) KNIGHT_MASK[i] |= BIT(i + 17);
+        }
+        
+        for (int i = 0; i < NUM_SQUARES; i++) {
+            int row = Row(i);
+            int col = Col(i);
+            if (row > 0 && col > 0) ADJACENT_MASK[i] |= BIT(i - 9);
+            if (row > 0)            ADJACENT_MASK[i] |= BIT(i - 8);
+            if (row > 0 && col < 7) ADJACENT_MASK[i] |= BIT(i - 7);
+            if (col > 0)            ADJACENT_MASK[i] |= BIT(i - 1);
+            if (col < 7)            ADJACENT_MASK[i] |= BIT(i + 1);
+            if (row < 7 && col > 0) ADJACENT_MASK[i] |= BIT(i + 7);
+            if (row < 7)            ADJACENT_MASK[i] |= BIT(i + 8);
+            if (row < 7 && col < 7) ADJACENT_MASK[i] |= BIT(i + 9);
         }
 
         

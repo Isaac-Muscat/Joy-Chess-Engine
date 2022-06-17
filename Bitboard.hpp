@@ -15,7 +15,7 @@
     08 09 10 11 12 13 62 63
 */
 
-#define BIT(x) ((uint64_t)1) << (x)
+#define BIT(x) (((uint64_t)1) << (x))
 
 namespace JoyChess {
     typedef uint64_t Bitboard;
