@@ -9,7 +9,24 @@ namespace JoyChess {
     const std::string FEN_START = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
     const std::string FEN_TEST1 = "rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2 ";
 
+    enum CastleRights {
+        NoCastleRights = 0,
+        WKingCastle = 1,
+        WQueenCastle = WKingCastle << 1,
+        BKingCastle = WKingCastle << 2,
+        BQueenCastle = WKingCastle << 3
+    };
+    enum Piece {
+        WPawn, WKnight, WBishop, WRook, WQueen, WKing,        
+        BPawn, BKnight, BBishop, BRook, BQueen, BKing,
+        NUM_PIECE_TYPES, None
+    };
     enum class Color { White, Black };
+    enum class MoveType {
+        QuietMove, DoublePawnPush, Capture, KingCastle, QueenCastle, EPCapture,
+        KnightPromotion, BishopPromotion, RookPromotion, QueenPromotion,
+        KnightPromoCapture, BishopPromoCapture, RookPromoCapture, QueenPromoCapture
+    };
 
     enum Square { 
         a8 = 0, b8, c8, d8, e8, f8, g8, h8,
@@ -22,36 +39,31 @@ namespace JoyChess {
         a1, b1, c1, d1, e1, f1, g1, h1,
         NONE
     };
+
+    struct Move {
+        int from;
+        int to;
+        Piece capturedPiece;
+        MoveType moveType;
+    };
     
     class Board {
     public:
-        Bitboard wPawn;
-        Bitboard wKnight;
-        Bitboard wBishop;
-        Bitboard wRook;
-        Bitboard wQueen;
-        Bitboard wKing;
-        Bitboard bPawn;
-        Bitboard bKnight;
-        Bitboard bBishop;
-        Bitboard bRook;
-        Bitboard bQueen;
-        Bitboard bKing;
-    
-        bool wKingCastle;
-        bool wQueenCastle;
-        bool bKingCastle;
-        bool bQueenCastle;
+        Piece squares[NUM_SQUARES];
+        Bitboard pieceBitboards[NUM_PIECE_TYPES];
+        CastleRights castleRights;
 
         int halfMoveClock;
         int fullMoveCounter;
-    
         Color sideToMove;
         Square enPassantTarget;
     public:
         Board();
+        Board(const Board& board);
         Board(const std::string& fen);
+
         std::string ToString();
+        void MakeMove(const Move& move);
     };
 
     std::string SquareToString(Square s);

@@ -5,3 +5,4 @@ main-debug
 main
 *.nix
 .vscode/
+build/

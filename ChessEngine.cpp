@@ -3,29 +3,25 @@
 namespace JoyChess {
 
     Board::Board() {
-        wPawn = 0;
-        wKnight = 0;
-        wBishop = 0;
-        wRook = 0;
-        wQueen = 0;
-        wKing = 0;
-        bPawn = 0;
-        bKnight = 0;
-        bBishop = 0;
-        bRook = 0;
-        bQueen = 0;
-        bKing = 0;
-
-        wKingCastle = 0;
-        wQueenCastle = 0;
-        bKingCastle = 0;
-        bQueenCastle = 0;
+        for (int i = 0; i < NUM_SQUARES; i++) squares[i] = Piece::None;
+        for (int piece = WPawn; piece < NUM_PIECE_TYPES; piece++) pieceBitboards[piece] = 0;
+        castleRights = CastleRights::NoCastleRights;
 
         halfMoveClock = 0;
         fullMoveCounter = 0;
 
         sideToMove = Color::White;
-        enPassantTarget = Square::e4;
+        enPassantTarget = Square::NONE;
+    }
+
+    Board::Board(const Board& board) {
+        for (int i = 0; i < NUM_SQUARES; i++) squares[i] = board.squares[i];
+        for (int piece = WPawn; piece < NUM_PIECE_TYPES; piece++) pieceBitboards[piece] = board.pieceBitboards[piece];
+        castleRights = board.castleRights;
+        halfMoveClock = board.halfMoveClock;
+        fullMoveCounter = board.fullMoveCounter;
+        sideToMove = board.sideToMove;
+        enPassantTarget = board.enPassantTarget;
     }
 
     Board::Board(const std::string& fen) : Board() {
@@ -35,18 +31,18 @@ namespace JoyChess {
         for (; stringIndex < fen.length() && fen[stringIndex] != ' '; stringIndex++) {
             char c = fen[stringIndex];
             if (c == '/') continue;
-            else if (c == 'p') bPawn     |= BIT(i);
-            else if (c == 'n') bKnight   |= BIT(i);
-            else if (c == 'b') bBishop   |= BIT(i);
-            else if (c == 'r') bRook     |= BIT(i);
-            else if (c == 'q') bQueen    |= BIT(i);
-            else if (c == 'k') bKing     |= BIT(i);
-            else if (c == 'P') wPawn     |= BIT(i);
-            else if (c == 'N') wKnight   |= BIT(i);
-            else if (c == 'B') wBishop   |= BIT(i);
-            else if (c == 'R') wRook     |= BIT(i);
-            else if (c == 'Q') wQueen    |= BIT(i);
-            else if (c == 'K') wKing     |= BIT(i);
+            else if (c == 'p') { bPawn     |= BIT(i); }
+            else if (c == 'n') { bKnight   |= BIT(i); }
+            else if (c == 'b') { bBishop   |= BIT(i); }
+            else if (c == 'r') { bRook     |= BIT(i); }
+            else if (c == 'q') { bQueen    |= BIT(i); }
+            else if (c == 'k') { bKing     |= BIT(i); }
+            else if (c == 'P') { wPawn     |= BIT(i); }
+            else if (c == 'N') { wKnight   |= BIT(i); }
+            else if (c == 'B') { wBishop   |= BIT(i); }
+            else if (c == 'R') { wRook     |= BIT(i); }
+            else if (c == 'Q') { wQueen    |= BIT(i); }
+            else if (c == 'K') { wKing     |= BIT(i); }
             
             if (c > '0' && c < '9') {i += static_cast<int>(c - '0');}
             else {i++;}
@@ -73,6 +69,12 @@ namespace JoyChess {
         }
         stringIndex += 2;
         
+    }
+
+    // Updates state of board.
+    // Assumes move is valid.
+    void Board::MakeMove(const Move& move) {
+        if (wPawn)
     }
 
     std::string Board::ToString() {
