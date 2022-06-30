@@ -4,3 +4,4 @@ main-debug
 .ccls-cache
 main
 *.nix
+.vscode/
