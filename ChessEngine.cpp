@@ -4,45 +4,39 @@ namespace JoyChess {
 
     Board::Board() {
         for (int i = 0; i < NUM_SQUARES; i++) squares[i] = Piece::None;
-        for (int piece = WPawn; piece < NUM_PIECE_TYPES; piece++) pieceBitboards[piece] = 0;
-        castleRights = CastleRights::NoCastleRights;
+        for (int piece = WPawn; piece < NUM_PIECE_TYPES; piece++) pieceBB[piece] = 0;
+        
+        boardStateInfo = new BoardStateInfo();
 
-        halfMoveClock = 0;
-        fullMoveCounter = 0;
-
-        sideToMove = Color::White;
-        enPassantTarget = Square::NONE;
-    }
-
-    Board::Board(const Board& board) {
-        for (int i = 0; i < NUM_SQUARES; i++) squares[i] = board.squares[i];
-        for (int piece = WPawn; piece < NUM_PIECE_TYPES; piece++) pieceBitboards[piece] = board.pieceBitboards[piece];
-        castleRights = board.castleRights;
-        halfMoveClock = board.halfMoveClock;
-        fullMoveCounter = board.fullMoveCounter;
-        sideToMove = board.sideToMove;
-        enPassantTarget = board.enPassantTarget;
+        boardStateInfo->castleRights = CastleRights::NoCastleRights;
+        boardStateInfo->halfMoveClock = 0;
+        boardStateInfo->fullMoveCounter = 0;
+        boardStateInfo->sideToMove = Color::White;
+        boardStateInfo->enPassantTarget = Square::NONE;
     }
 
     Board::Board(const std::string& fen) : Board() {
-        int i = 0;
+        int i = 56;
         int stringIndex = 0;
 
         for (; stringIndex < fen.length() && fen[stringIndex] != ' '; stringIndex++) {
             char c = fen[stringIndex];
-            if (c == '/') continue;
-            else if (c == 'p') { bPawn     |= BIT(i); }
-            else if (c == 'n') { bKnight   |= BIT(i); }
-            else if (c == 'b') { bBishop   |= BIT(i); }
-            else if (c == 'r') { bRook     |= BIT(i); }
-            else if (c == 'q') { bQueen    |= BIT(i); }
-            else if (c == 'k') { bKing     |= BIT(i); }
-            else if (c == 'P') { wPawn     |= BIT(i); }
-            else if (c == 'N') { wKnight   |= BIT(i); }
-            else if (c == 'B') { wBishop   |= BIT(i); }
-            else if (c == 'R') { wRook     |= BIT(i); }
-            else if (c == 'Q') { wQueen    |= BIT(i); }
-            else if (c == 'K') { wKing     |= BIT(i); }
+            if (c == '/') {
+                i-=16;
+                continue;
+            }
+            else if (c == 'p') { squares[i] = BPawn; pieceBB[BPawn]     |= BIT(i); }
+            else if (c == 'n') { squares[i] = BKnight; pieceBB[BKnight] |= BIT(i); }
+            else if (c == 'b') { squares[i] = BBishop; pieceBB[BBishop] |= BIT(i); }
+            else if (c == 'r') { squares[i] = BRook; pieceBB[BRook]     |= BIT(i); }
+            else if (c == 'q') { squares[i] = BQueen; pieceBB[BQueen]   |= BIT(i); }
+            else if (c == 'k') { squares[i] = BKing; pieceBB[BKing]     |= BIT(i); }
+            else if (c == 'P') { squares[i] = WPawn; pieceBB[WPawn]     |= BIT(i); }
+            else if (c == 'N') { squares[i] = WKnight; pieceBB[WKnight] |= BIT(i); }
+            else if (c == 'B') { squares[i] = WBishop; pieceBB[WBishop] |= BIT(i); }
+            else if (c == 'R') { squares[i] = WRook; pieceBB[WRook]     |= BIT(i); }
+            else if (c == 'Q') { squares[i] = WQueen; pieceBB[WQueen]   |= BIT(i); }
+            else if (c == 'K') { squares[i] = WKing; pieceBB[WKing]     |= BIT(i); }
             
             if (c > '0' && c < '9') {i += static_cast<int>(c - '0');}
             else {i++;}
@@ -50,22 +44,22 @@ namespace JoyChess {
         }
 
         stringIndex++;
-        if (fen[stringIndex] == 'w') sideToMove = Color::White;
-        else sideToMove = Color::Black;
+        if (fen[stringIndex] == 'w') boardStateInfo->sideToMove = Color::White;
+        else boardStateInfo->sideToMove = Color::Black;
         stringIndex += 2;
 
         for (; stringIndex < fen.length() && fen[stringIndex] != ' '; stringIndex++) {
             char c = fen[stringIndex];
-            if (c == 'k') bKingCastle = true;
-            if (c == 'q') bQueenCastle = true;
-            if (c == 'K') wKingCastle = true;
-            if (c == 'Q') wQueenCastle = true;
+            if (c == 'k') boardStateInfo->castleRights |= CastleRights::BKingCastle;
+            if (c == 'q') boardStateInfo->castleRights |= CastleRights::BQueenCastle;
+            if (c == 'K') boardStateInfo->castleRights |= CastleRights::WKingCastle;
+            if (c == 'Q') boardStateInfo->castleRights |= CastleRights::WQueenCastle;
         }
 
         stringIndex++;
         if (fen[stringIndex] != '-') {
-            int epTarget = (8 - (fen[stringIndex+1] - '0')) * NUM_FILES + (fen[stringIndex] - 'a');
-            enPassantTarget = static_cast<Square>(epTarget);
+            int epTarget = ((fen[stringIndex+1] - '0')) * NUM_FILES + (fen[stringIndex] - 'a');
+            boardStateInfo->enPassantTarget = static_cast<Square>(epTarget);
         }
         stringIndex += 2;
         
@@ -74,48 +68,48 @@ namespace JoyChess {
     // Updates state of board.
     // Assumes move is valid.
     void Board::MakeMove(const Move& move) {
-        if (wPawn)
+        
     }
 
     std::string Board::ToString() {
         std::string out = "[Info]\n";
 
         out += "Side To Move -----> ";
-        if (sideToMove == Color::White) out += "White\n";
+        if (boardStateInfo->sideToMove == Color::White) out += "White\n";
         else out += "Black\n";
             
         out += "Castling Rights --> ";
-        if (wKingCastle) out += 'K';
-        if (wQueenCastle) out += 'Q';
-        if (bKingCastle) out += 'k';
-        if (bQueenCastle) out += 'q';
+        if (boardStateInfo->castleRights & CastleRights::WKingCastle) out += 'K';
+        if (boardStateInfo->castleRights & CastleRights::WQueenCastle) out += 'Q';
+        if (boardStateInfo->castleRights & CastleRights::BKingCastle) out += 'k';
+        if (boardStateInfo->castleRights & CastleRights::BQueenCastle) out += 'q';
 
         out += "\nEP Target Square -> ";
-        out += SquareToString(enPassantTarget);
+        out += SquareToString(boardStateInfo->enPassantTarget);
 
         out += "\nHalf Move Clock --> ";
-        out += std::to_string(halfMoveClock);
+        out += std::to_string(boardStateInfo->halfMoveClock);
         
         out += "\nFull Move Clock --> ";
-        out += std::to_string(fullMoveCounter);
+        out += std::to_string(boardStateInfo->fullMoveCounter);
 
         out += "\n  +-----------------+\n";
-        for (int i = 0; i < NUM_RANKS; i++) {
+        for (int i = NUM_RANKS - 1; i >= 0; i--) {
             out += std::to_string(NUM_RANKS - i);
             out += " | ";
             for (int j = 0; j < NUM_FILES; j++) {
-                if (wPawn & SQUARE[i * NUM_FILES + j]) out += "P ";
-                else if (wKnight & SQUARE[i * NUM_FILES + j]) out += "N ";
-                else if (wBishop & SQUARE[i * NUM_FILES + j]) out += "B ";
-                else if (wRook & SQUARE[i * NUM_FILES + j]) out += "R ";
-                else if (wQueen & SQUARE[i * NUM_FILES + j]) out += "Q ";
-                else if (wKing & SQUARE[i * NUM_FILES + j]) out += "K ";
-                else if (bPawn & SQUARE[i * NUM_FILES + j]) out += "p ";
-                else if (bKnight & SQUARE[i * NUM_FILES + j]) out += "n ";
-                else if (bBishop & SQUARE[i * NUM_FILES + j]) out += "b ";
-                else if (bRook & SQUARE[i * NUM_FILES + j]) out += "r ";
-                else if (bQueen & SQUARE[i * NUM_FILES + j]) out += "q ";
-                else if (bKing & SQUARE[i * NUM_FILES + j]) out += "k ";
+                if (pieceBB[WPawn] & SQUARE[i * NUM_FILES + j]) out += "P ";
+                else if (squares[Ind(i, j)] == WKnight && pieceBB[WKnight] & SQUARE[i * NUM_FILES + j]) out += "N ";
+                else if (squares[Ind(i, j)] == WBishop && pieceBB[WBishop] & SQUARE[i * NUM_FILES + j]) out += "B ";
+                else if (squares[Ind(i, j)] == WRook && pieceBB[WRook] & SQUARE[i * NUM_FILES + j]) out += "R ";
+                else if (squares[Ind(i, j)] == WQueen && pieceBB[WQueen] & SQUARE[i * NUM_FILES + j]) out += "Q ";
+                else if (squares[Ind(i, j)] == WKing && pieceBB[WKing] & SQUARE[i * NUM_FILES + j]) out += "K ";
+                else if (squares[Ind(i, j)] == BPawn && pieceBB[BPawn] & SQUARE[i * NUM_FILES + j]) out += "p ";
+                else if (squares[Ind(i, j)] == BKnight && pieceBB[BKnight] & SQUARE[i * NUM_FILES + j]) out += "n ";
+                else if (squares[Ind(i, j)] == BBishop && pieceBB[BBishop] & SQUARE[i * NUM_FILES + j]) out += "b ";
+                else if (squares[Ind(i, j)] == BRook && pieceBB[BRook] & SQUARE[i * NUM_FILES + j]) out += "r ";
+                else if (squares[Ind(i, j)] == BQueen && pieceBB[BQueen] & SQUARE[i * NUM_FILES + j]) out += "q ";
+                else if (squares[Ind(i, j)] == BKing && pieceBB[BKing] & SQUARE[i * NUM_FILES + j]) out += "k ";
                 else out += "- ";
             }
             out += "|\n";
@@ -130,12 +124,12 @@ namespace JoyChess {
 
         if (i == 64) return "None";
         else if (i > 64) return std::to_string(i);
-        int row = Row(i);
-        char col = Col(i);
+        int rank = Rank(i);
+        char file = File(i);
 
         std::string out = "";
-        out.push_back('a' + col);
-        out += std::to_string(8 - row);
+        out.push_back('a' + file);
+        out += std::to_string(rank);
         return out;
     }
 }

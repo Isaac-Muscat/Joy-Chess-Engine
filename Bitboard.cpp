@@ -27,8 +27,8 @@ namespace JoyChess {
         }
         
         for (int i = 0; i < NUM_SQUARES; i++) {
-            int row = Row(i);
-            int col = Col(i);
+            int row = Rank(i);
+            int col = File(i);
             while (row > 0 && col < NUM_FILES - 1) {
                 row--;
                 col++;
@@ -41,8 +41,8 @@ namespace JoyChess {
         }
         
         for (int i = 0; i < NUM_SQUARES; i++) {
-            int row = Row(i);
-            int col = Col(i);
+            int row = Rank(i);
+            int col = File(i);
             while (row > 0 && col > 0) {
                 row--;
                 col--;
@@ -55,8 +55,8 @@ namespace JoyChess {
         }
         
         for (int i = 0; i < NUM_SQUARES; i++) {
-            int row = Row(i);
-            int col = Col(i);
+            int row = Rank(i);
+            int col = File(i);
             if (row > 1 && col > 0) KNIGHT_MASK[i] |= BIT(i - 17);
             if (row > 1 && col < 7) KNIGHT_MASK[i] |= BIT(i - 15);
             if (row > 0 && col > 1) KNIGHT_MASK[i] |= BIT(i - 10);
@@ -68,8 +68,8 @@ namespace JoyChess {
         }
         
         for (int i = 0; i < NUM_SQUARES; i++) {
-            int row = Row(i);
-            int col = Col(i);
+            int row = Rank(i);
+            int col = File(i);
             if (row > 0 && col > 0) ADJACENT_MASK[i] |= BIT(i - 9);
             if (row > 0)            ADJACENT_MASK[i] |= BIT(i - 8);
             if (row > 0 && col < 7) ADJACENT_MASK[i] |= BIT(i - 7);
@@ -86,8 +86,8 @@ namespace JoyChess {
 
     std::string BitboardToString(Bitboard b) {
         std::string out = "  +-----------------+\n";
-        for (int i = 0; i < NUM_RANKS; i++) {
-            out += std::to_string(NUM_RANKS - i);
+        for (int i = NUM_RANKS - 1; i >= 0; i--) {
+            out += std::to_string(i + 1);
             out += " | ";
             for (int j = 0; j < NUM_FILES; j++) {
                 if(b & SQUARE[i * NUM_RANKS + j]) out += "1 ";

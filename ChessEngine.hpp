@@ -46,20 +46,27 @@ namespace JoyChess {
         Piece capturedPiece;
         MoveType moveType;
     };
+
+    // Info to be copied every make/unmake move.
+    struct BoardStateInfo {
+        int castleRights = 0;
+        int halfMoveClock = 0;
+        int fullMoveCounter = 0;
+        Square enPassantTarget = Square::NONE;
+        Color sideToMove = Color::White;
+    };
     
     class Board {
     public:
+        // Info to be modified every make/unmake move.
         Piece squares[NUM_SQUARES];
-        Bitboard pieceBitboards[NUM_PIECE_TYPES];
-        CastleRights castleRights;
-
-        int halfMoveClock;
-        int fullMoveCounter;
-        Color sideToMove;
-        Square enPassantTarget;
+        Bitboard pieceBB[NUM_PIECE_TYPES];
+        
+        // Info to be copied every make/unmake move.
+        BoardStateInfo* boardStateInfo;
+        
     public:
         Board();
-        Board(const Board& board);
         Board(const std::string& fen);
 
         std::string ToString();
