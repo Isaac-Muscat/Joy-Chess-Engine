@@ -1,10 +1,17 @@
 
-#include "ChessEngine.hpp"
+#include "Utilities.hpp"
+#include "Bitboard.hpp"
+#include "Board.hpp"
+#include "Engine.hpp"
+
+using namespace JoyChess;
 
 int main() {
-    JoyChess::InitBitboards();
 
-    JoyChess::Board board { JoyChess::FEN_TEST1 };
+    InitBitboards();
+
+    Board board { FEN[0] };
     std::cout << board.ToString();
+    GeneratePseudoLegalMoves(board);
     std::cout << "Program finished!\n";
 }

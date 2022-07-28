@@ -1,8 +1,9 @@
-#include "ChessEngine.hpp"
+#include "Utilities.hpp"
+#include "Board.hpp"
 
 namespace JoyChess {
-
-    Board::Board() {
+	
+	Board::Board() {
         for (int i = 0; i < NUM_SQUARES; i++) squares[i] = Piece::None;
         for (int piece = WPawn; piece < NUM_PIECE_TYPES; piece++) pieceBB[piece] = 0;
         
@@ -65,11 +66,17 @@ namespace JoyChess {
         
     }
 
-    // Updates state of board.
-    // Assumes move is valid.
-    void Board::MakeMove(const Move& move) {
-        
-    }
+	Bitboard Board::GetOccupied(Color color) const {
+		Bitboard o = 0;
+		for (int i = Pawn + color; i <= King + color; i++) {
+			o |= pieceBB[i];
+		}
+		return o;
+	}
+
+	Bitboard Board::GetOccupied() const {
+		return (GetOccupied(Color::White) | GetOccupied(Color::Black));
+	}
 
     std::string Board::ToString() {
         std::string out = "[Info]\n";
@@ -116,20 +123,6 @@ namespace JoyChess {
         }
         out += "  +-----------------+\n";
         out += "    a b c d e f g h\n";
-        return out;
-    }
-
-    std::string SquareToString(Square s) {
-        int i = static_cast<int>(s);
-
-        if (i == 64) return "None";
-        else if (i > 64) return std::to_string(i);
-        int rank = Rank(i);
-        char file = File(i);
-
-        std::string out = "";
-        out.push_back('a' + file);
-        out += std::to_string(rank);
         return out;
     }
 }
