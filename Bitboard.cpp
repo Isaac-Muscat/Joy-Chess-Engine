@@ -10,6 +10,12 @@ namespace JoyChess {
     Bitboard ANTIDIAGONAL[NUM_SQUARES]{0};
     Bitboard KNIGHT_MASK[NUM_SQUARES]{0};
     Bitboard ADJACENT_MASK[NUM_SQUARES]{0};
+    Bitboard PAWN_PUSH[NUM_COLORS][NUM_SQUARES]{0};
+    Bitboard PAWN_ATTACKS[NUM_COLORS][NUM_SQUARES]{0};
+
+    int PAWN_START_RANK[NUM_COLORS]{0};
+    int PAWN_PROMO_FROM_RANK[NUM_COLORS]{0};
+    int PAWN_EP_CAPTURE_FROM_RANK[NUM_COLORS]{0};
 
     void InitBitboards() {
         for (int i = 0; i < NUM_SQUARES; i++) {
@@ -81,6 +87,29 @@ namespace JoyChess {
             if (row < 7)            ADJACENT_MASK[i] |= BIT(i + 8);
             if (row < 7 && col < 7) ADJACENT_MASK[i] |= BIT(i + 9);
         }
+
+        for (int i = 0; i < NUM_SQUARES; i++) {
+            if (Rank(i) != RANK_8)
+                PAWN_PUSH[White][i] |= SQUARE[i + NORTH];
+            if (File(i) != A_FILE && Rank(i) != RANK_8)
+                PAWN_ATTACKS[White][i] |= SQUARE[i + NORTH_WEST];
+            if (File(i) != H_FILE && Rank(i) != RANK_8)
+                PAWN_ATTACKS[White][i] |= SQUARE[i + NORTH_EAST];
+
+            if (Rank(i) != RANK_1)
+                PAWN_PUSH[Black][i] |= SQUARE[i + SOUTH];
+            if (File(i) != A_FILE && Rank(i) != RANK_1)
+                PAWN_ATTACKS[Black][i] |= SQUARE[i + SOUTH_WEST];
+            if (File(i) != H_FILE && Rank(i) != RANK_1)
+                PAWN_ATTACKS[Black][i] |= SQUARE[i + SOUTH_EAST];
+        }
+
+        PAWN_START_RANK[White] = RANK_2;
+        PAWN_START_RANK[Black] = RANK_7;
+        PAWN_PROMO_FROM_RANK[White] = RANK_7;
+        PAWN_PROMO_FROM_RANK[Black] = RANK_2;
+        PAWN_EP_CAPTURE_FROM_RANK[White] = RANK_5;
+        PAWN_EP_CAPTURE_FROM_RANK[Black] = RANK_4;
     }
 
     /**

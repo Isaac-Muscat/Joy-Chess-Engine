@@ -64,11 +64,10 @@ namespace JoyChess {
 
     // For easy color + GenericPiece to index white vs black pieces.
     enum GenericPiece {
-        Pawn = 0, Knight, Bishop, Rook, Queen, King
+        Pawn = 0, Knight, Bishop, Rook, Queen, King, NUM_GENERIC_PIECE_TYPES
     };
 
-    // Add 6 for color + GenericPiece to index white vs black pieces (6x generic pieces).
-    enum Color { White = 0, Black = 6 };
+    enum Color { White = 0, Black = 1, NUM_COLORS };
 
     enum MoveType {
         QuietMove, DoublePawnPush, Capture, KingCastle, QueenCastle, EPCapture,
@@ -104,6 +103,9 @@ namespace JoyChess {
     inline Direction GetPawnDirection(Color color) {
         if (color == White) return NORTH;
         else return SOUTH;
+    }
+    inline bool OnEdgeRanks(int i) {
+        return (i < NUM_FILES || i >= (NUM_RANKS - 1) * NUM_FILES);
     }
 
     std::string SquareToString(Square s);

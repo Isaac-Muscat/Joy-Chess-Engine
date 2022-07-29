@@ -18,7 +18,7 @@ namespace JoyChess {
     public:
         // Info to be modified every make/unmake move.
         Piece squares[NUM_SQUARES];
-        Bitboard pieceBB[NUM_PIECE_TYPES];
+        Bitboard pieceBB[NUM_COLORS][NUM_GENERIC_PIECE_TYPES];
         
         // Info to be copied every make/unmake move.
         BoardStateInfo* boardStateInfo;

@@ -10,5 +10,7 @@ namespace JoyChess {
 	Move GetBestMove(const Board &board);
 
 	std::vector<Move> GeneratePseudoLegalMoves(const Board &board);
+	std::vector<Move> GenerateLegalMoves(const Board &board);
+
 
 }
