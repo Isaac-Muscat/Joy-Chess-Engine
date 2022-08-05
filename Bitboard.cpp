@@ -12,6 +12,7 @@ namespace JoyChess {
     Bitboard ADJACENT_MASK[NUM_SQUARES]{0};
     Bitboard PAWN_PUSH[NUM_COLORS][NUM_SQUARES]{0};
     Bitboard PAWN_ATTACKS[NUM_COLORS][NUM_SQUARES]{0};
+    Bitboard DIRECTIONS[NUM_DIRECTIONS][NUM_SQUARES]{0};
 
     int PAWN_START_RANK[NUM_COLORS]{0};
     int PAWN_PROMO_FROM_RANK[NUM_COLORS]{0};
@@ -90,18 +91,100 @@ namespace JoyChess {
 
         for (int i = 0; i < NUM_SQUARES; i++) {
             if (Rank(i) != RANK_8)
-                PAWN_PUSH[White][i] |= SQUARE[i + NORTH];
+                PAWN_PUSH[White][i] |= SQUARE[i + PAWN_NORTH];
             if (File(i) != A_FILE && Rank(i) != RANK_8)
-                PAWN_ATTACKS[White][i] |= SQUARE[i + NORTH_WEST];
+                PAWN_ATTACKS[White][i] |= SQUARE[i + PAWN_NORTH_WEST];
             if (File(i) != H_FILE && Rank(i) != RANK_8)
-                PAWN_ATTACKS[White][i] |= SQUARE[i + NORTH_EAST];
+                PAWN_ATTACKS[White][i] |= SQUARE[i + PAWN_NORTH_EAST];
 
             if (Rank(i) != RANK_1)
-                PAWN_PUSH[Black][i] |= SQUARE[i + SOUTH];
+                PAWN_PUSH[Black][i] |= SQUARE[i + PAWN_SOUTH];
             if (File(i) != A_FILE && Rank(i) != RANK_1)
-                PAWN_ATTACKS[Black][i] |= SQUARE[i + SOUTH_WEST];
+                PAWN_ATTACKS[Black][i] |= SQUARE[i + PAWN_SOUTH_WEST];
             if (File(i) != H_FILE && Rank(i) != RANK_1)
-                PAWN_ATTACKS[Black][i] |= SQUARE[i + SOUTH_EAST];
+                PAWN_ATTACKS[Black][i] |= SQUARE[i + PAWN_SOUTH_EAST];
+        }
+
+        // Generate direction masks
+        for (int i = 0; i < NUM_SQUARES; i++) {
+            int rank {0};
+            int file {0};
+
+            // North
+            rank = Rank(i);
+            file = File(i);
+            while (rank <= RANK_8 && rank >= RANK_1 && file <= H_FILE && file >= A_FILE) {
+                DIRECTIONS[NORTH][i] |= SQUARE[Ind(rank, file)];
+                rank++;
+            }
+            DIRECTIONS[NORTH][i] &= ~SQUARE[i];
+            
+            // Northeast
+            rank = Rank(i);
+            file = File(i);
+            while (rank <= RANK_8 && rank >= RANK_1 && file <= H_FILE && file >= A_FILE) {
+                DIRECTIONS[NORTH_EAST][i] |= SQUARE[Ind(rank, file)];
+                rank++;
+                file++;
+            }
+            DIRECTIONS[NORTH_EAST][i] &= ~SQUARE[i];
+
+            // East
+            rank = Rank(i);
+            file = File(i);
+            while (rank <= RANK_8 && rank >= RANK_1 && file <= H_FILE && file >= A_FILE) {
+                DIRECTIONS[EAST][i] |= SQUARE[Ind(rank, file)];
+                file++;
+            }
+            DIRECTIONS[EAST][i] &= ~SQUARE[i];
+
+            // Southeast
+            rank = Rank(i);
+            file = File(i);
+            while (rank <= RANK_8 && rank >= RANK_1 && file <= H_FILE && file >= A_FILE) {
+                DIRECTIONS[SOUTH_EAST][i] |= SQUARE[Ind(rank, file)];
+                rank--;
+                file++;
+            }
+            DIRECTIONS[SOUTH_EAST][i] &= ~SQUARE[i];
+
+            // South
+            rank = Rank(i);
+            file = File(i);
+            while (rank <= RANK_8 && rank >= RANK_1 && file <= H_FILE && file >= A_FILE) {
+                DIRECTIONS[SOUTH][i] |= SQUARE[Ind(rank, file)];
+                rank--;
+            }
+            DIRECTIONS[SOUTH][i] &= ~SQUARE[i];
+
+            // Southwest
+            rank = Rank(i);
+            file = File(i);
+            while (rank <= RANK_8 && rank >= RANK_1 && file <= H_FILE && file >= A_FILE) {
+                DIRECTIONS[SOUTH_WEST][i] |= SQUARE[Ind(rank, file)];
+                rank--;
+                file--;
+            }
+            DIRECTIONS[SOUTH_WEST][i] &= ~SQUARE[i];
+
+            // West
+            rank = Rank(i);
+            file = File(i);
+            while (rank <= RANK_8 && rank >= RANK_1 && file <= H_FILE && file >= A_FILE) {
+                DIRECTIONS[WEST][i] |= SQUARE[Ind(rank, file)];
+                file--;
+            }
+            DIRECTIONS[WEST][i] &= ~SQUARE[i];
+
+            // Northwest
+            rank = Rank(i);
+            file = File(i);
+            while (rank <= RANK_8 && rank >= RANK_1 && file <= H_FILE && file >= A_FILE) {
+                DIRECTIONS[NORTH_WEST][i] |= SQUARE[Ind(rank, file)];
+                rank++;
+                file--;
+            }
+            DIRECTIONS[NORTH_WEST][i] &= ~SQUARE[i];
         }
 
         PAWN_START_RANK[White] = RANK_2;
@@ -112,6 +195,18 @@ namespace JoyChess {
         PAWN_EP_CAPTURE_FROM_RANK[Black] = RANK_4;
     }
 
+    // Used in bitscan routines
+    const int index64[64] = {
+        0, 47,  1, 56, 48, 27,  2, 60,
+        57, 49, 41, 37, 28, 16,  3, 61,
+        54, 58, 35, 52, 50, 42, 21, 44,
+        38, 32, 29, 23, 17, 11,  4, 62,
+        46, 55, 26, 59, 40, 36, 15, 53,
+        34, 51, 20, 43, 31, 22, 10, 45,
+        25, 39, 14, 33, 19, 30,  9, 24,
+        13, 18,  8, 12,  7,  6,  5, 63
+    };
+
     /**
      * bitScanForward
      * @author Kim Walisch (2012)
@@ -120,18 +215,26 @@ namespace JoyChess {
      * @return index (0..63) of least significant one bit
      */
     int bitScanForward(Bitboard bb) {
-        static const int index64[64] = {
-            0, 47,  1, 56, 48, 27,  2, 60,
-            57, 49, 41, 37, 28, 16,  3, 61,
-            54, 58, 35, 52, 50, 42, 21, 44,
-            38, 32, 29, 23, 17, 11,  4, 62,
-            46, 55, 26, 59, 40, 36, 15, 53,
-            34, 51, 20, 43, 31, 22, 10, 45,
-            25, 39, 14, 33, 19, 30,  9, 24,
-            13, 18,  8, 12,  7,  6,  5, 63
-        };
         const Bitboard debruijn64 = int64_t(0x03f79d71b4cb0a89);
         return index64[((bb ^ (bb-1)) * debruijn64) >> 58];
+    }
+
+    /**
+     * bitScanReverse
+     * @authors Kim Walisch, Mark Dickinson
+     * @param bb bitboard to scan
+     * @precondition bb != 0
+     * @return index (0..63) of most significant one bit
+     */
+    int bitScanReverse(Bitboard bb) {
+        const Bitboard debruijn64 = int64_t(0x03f79d71b4cb0a89);
+        bb |= bb >> 1; 
+        bb |= bb >> 2;
+        bb |= bb >> 4;
+        bb |= bb >> 8;
+        bb |= bb >> 16;
+        bb |= bb >> 32;
+        return index64[(bb * debruijn64) >> 58];
     }
 
     std::string BitboardToString(Bitboard b) {

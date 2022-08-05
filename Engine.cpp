@@ -7,6 +7,7 @@ namespace JoyChess {
 		Color opponentColor = GetOpponentColor(friendColor);
 		Bitboard friendOccupied = board.GetOccupied(board.boardStateInfo->sideToMove);
 		Bitboard enemyOccupied = board.GetOccupied(opponentColor);
+		Bitboard occupied = friendOccupied | enemyOccupied;
 
 		std::vector<Move> moves;
 		
@@ -96,8 +97,8 @@ namespace JoyChess {
 			}
 
 			// En Passant.
-			if (board.boardStateInfo->enPassantTarget != NONE && (from) == PAWN_EP_CAPTURE_FROM_RANK[friendColor] && abs(File(board.boardStateInfo->enPassantTarget) - File(from))) {
-				to = bitScanForward(PAWN_ATTACKS[friendColor][from] & FILE[board.boardStateInfo->enPassantTarget]);
+			if (board.boardStateInfo->enPassantTarget != NONE && PAWN_ATTACKS[friendColor][from] & SQUARE[board.boardStateInfo->enPassantTarget]) {
+				to = board.boardStateInfo->enPassantTarget;
 				moves.push_back({from, to, EPCapture});
 			}
 
@@ -105,10 +106,46 @@ namespace JoyChess {
 		}
 
 		// Generate bishop moves.
+
 		// Generate rook moves.
+		Bitboard rooks = board.pieceBB[friendColor][Rook];
+		while (rooks) {
+			int from = bitScanForward(rooks);
+			Bitboard rookMoves = 0;
+
+			// West
+			rookMoves |= GetNegativeDirectionAttacks(occupied, WEST, from)
+				| GetPositiveDirectionAttacks(occupied, NORTH, from)
+				| GetPositiveDirectionAttacks(occupied, EAST, from)
+				| GetNegativeDirectionAttacks(occupied, SOUTH, from);
+			std::cout << BitboardToString(rookMoves);
+			
+			rooks &= ~SQUARE[from];
+		}
+
 		// Generate queen moves.
 
 		return moves;
 
+	}
+
+	Bitboard GetPositiveDirectionAttacks(const Bitboard& occupied, Direction dir, int square) {
+		Bitboard attacks = DIRECTIONS[dir][square];
+		Bitboard blocker = attacks & occupied;
+		if ( blocker ) {
+			square = bitScanForward(blocker);
+			attacks ^= DIRECTIONS[dir][square];
+		}
+		return attacks;
+	}
+
+	Bitboard GetNegativeDirectionAttacks(const Bitboard& occupied, Direction dir, int square) {
+		Bitboard attacks = DIRECTIONS[dir][square];
+		Bitboard blocker = attacks & occupied;
+		if ( blocker ) {
+			square = bitScanReverse(blocker);
+			attacks ^= DIRECTIONS[dir][square];
+		}
+		return attacks;
 	}
 }

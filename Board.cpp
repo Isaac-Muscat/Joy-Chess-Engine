@@ -63,7 +63,7 @@ namespace JoyChess {
 
         stringIndex++;
         if (fen[stringIndex] != '-') {
-            int epTarget = ((fen[stringIndex+1] - '0')) * NUM_FILES + (fen[stringIndex] - 'a');
+            int epTarget = ((fen[stringIndex+1] - '0') - 1) * NUM_FILES + (fen[stringIndex] - 'a');
             boardStateInfo->enPassantTarget = static_cast<Square>(epTarget);
         }
         stringIndex += 2;
@@ -106,7 +106,7 @@ namespace JoyChess {
 
         out += "\n  +-----------------+\n";
         for (int i = NUM_RANKS - 1; i >= 0; i--) {
-            out += std::to_string(NUM_RANKS - i);
+            out += std::to_string(i + 1);
             out += " | ";
             for (int j = 0; j < NUM_FILES; j++) {
                 if (pieceBB[White][Pawn] & SQUARE[i * NUM_FILES + j]) out += "P ";

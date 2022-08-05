@@ -33,10 +33,14 @@ namespace JoyChess {
         RANK_8
     };
 
+    enum PawnDirection {
+        PAWN_SOUTH_WEST = -9, PAWN_SOUTH = -8, PAWN_SOUTH_EAST = -7,
+        PAWN_WEST = -1, PAWN_EAST = 1,
+        PAWN_NORTH_WEST = 7, PAWN_NORTH = 8, PAWN_NORTH_EAST = 9
+    };
+
     enum Direction {
-        SOUTH_WEST = -9, SOUTH = -8, SOUTH_EAST = -7,
-        WEST = -1, EAST = 1,
-        NORTH_WEST = 7, NORTH = 8, NORTH_EAST = 9
+        NORTH = 0, NORTH_EAST, EAST, SOUTH_EAST, SOUTH, SOUTH_WEST, WEST, NORTH_WEST, NUM_DIRECTIONS
     };
 
     const std::string FEN[] = {
@@ -96,13 +100,13 @@ namespace JoyChess {
     inline int Rank(int i) { return i / NUM_FILES; }
     inline int File(int i) { return i % NUM_RANKS; }
     inline int Ind(int rank, int file) { return rank * NUM_FILES + file; }
-    inline Color GetOpponentColor(Color color) { 
-        if (color == White) return Black;
-        else return White;
+    inline Color GetOpponentColor(Color color) {
+        static const Color opponent[2] {Black, White};
+        return opponent[color];
     }
-    inline Direction GetPawnDirection(Color color) {
-        if (color == White) return NORTH;
-        else return SOUTH;
+    inline PawnDirection GetPawnDirection(Color color) {
+        static const PawnDirection pawnDirection[2] {PAWN_NORTH, PAWN_SOUTH};
+        return pawnDirection[color];
     }
     inline bool OnEdgeRanks(int i) {
         return (i < NUM_FILES || i >= (NUM_RANKS - 1) * NUM_FILES);

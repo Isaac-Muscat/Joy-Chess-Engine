@@ -1,2 +1,2 @@
 - Pseudo Legal Move Generation
-	- Pawn Promotion
+	- Sliding Pieces

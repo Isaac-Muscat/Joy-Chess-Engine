@@ -28,12 +28,14 @@ namespace JoyChess {
     extern Bitboard ADJACENT_MASK[NUM_SQUARES];
     extern Bitboard PAWN_PUSH[NUM_COLORS][NUM_SQUARES];
     extern Bitboard PAWN_ATTACKS[NUM_COLORS][NUM_SQUARES];
+    extern Bitboard DIRECTIONS[NUM_DIRECTIONS][NUM_SQUARES];
 
     extern int PAWN_START_RANK[NUM_COLORS];
     extern int PAWN_PROMO_FROM_RANK[NUM_COLORS];
     extern int PAWN_EP_CAPTURE_FROM_RANK[NUM_COLORS];
 
     int bitScanForward(Bitboard bb);
+    int bitScanReverse(Bitboard bb);
     void InitBitboards();
     std::string BitboardToString(Bitboard b);
 }
