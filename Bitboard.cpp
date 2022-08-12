@@ -13,10 +13,11 @@ namespace JoyChess {
     Bitboard PAWN_PUSH[NUM_COLORS][NUM_SQUARES]{0};
     Bitboard PAWN_ATTACKS[NUM_COLORS][NUM_SQUARES]{0};
     Bitboard DIRECTIONS[NUM_DIRECTIONS][NUM_SQUARES]{0};
+    Bitboard CASTLE_MASK[NUM_COLORS][NUM_CASTLING_DIRECTIONS]{0};
 
     int PAWN_START_RANK[NUM_COLORS]{0};
     int PAWN_PROMO_FROM_RANK[NUM_COLORS]{0};
-    int PAWN_EP_CAPTURE_FROM_RANK[NUM_COLORS]{0};
+    int PAWN_EP_CAPTURE_TO_RANK[NUM_COLORS]{0};
 
     void InitBitboards() {
         for (int i = 0; i < NUM_SQUARES; i++) {
@@ -187,12 +188,17 @@ namespace JoyChess {
             DIRECTIONS[NORTH_WEST][i] &= ~SQUARE[i];
         }
 
+        CASTLE_MASK[White][CASTLE_WEST] = SQUARE[b1] | SQUARE[c1] | SQUARE[d1];
+        CASTLE_MASK[White][CASTLE_EAST] = SQUARE[f1] | SQUARE[g1];
+        CASTLE_MASK[Black][CASTLE_WEST] = SQUARE[b8] | SQUARE[c8] | SQUARE[d8];
+        CASTLE_MASK[Black][CASTLE_EAST] = SQUARE[f8] | SQUARE[g8];
+
         PAWN_START_RANK[White] = RANK_2;
         PAWN_START_RANK[Black] = RANK_7;
         PAWN_PROMO_FROM_RANK[White] = RANK_7;
         PAWN_PROMO_FROM_RANK[Black] = RANK_2;
-        PAWN_EP_CAPTURE_FROM_RANK[White] = RANK_5;
-        PAWN_EP_CAPTURE_FROM_RANK[Black] = RANK_4;
+        PAWN_EP_CAPTURE_TO_RANK[White] = RANK_6;
+        PAWN_EP_CAPTURE_TO_RANK[Black] = RANK_3;
     }
 
     // Used in bitscan routines

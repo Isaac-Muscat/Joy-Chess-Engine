@@ -33,6 +33,10 @@ namespace JoyChess {
         RANK_8
     };
 
+    enum CastleDirection {
+        CASTLE_WEST, CASTLE_EAST, NUM_CASTLING_DIRECTIONS
+    };
+
     enum PawnDirection {
         PAWN_SOUTH_WEST = -9, PAWN_SOUTH = -8, PAWN_SOUTH_EAST = -7,
         PAWN_WEST = -1, PAWN_EAST = 1,
@@ -100,7 +104,7 @@ namespace JoyChess {
     inline int Rank(int i) { return i / NUM_FILES; }
     inline int File(int i) { return i % NUM_RANKS; }
     inline int Ind(int rank, int file) { return rank * NUM_FILES + file; }
-    inline Color GetOpponentColor(Color color) {
+    inline Color GetOpponentColor(int color) {
         static const Color opponent[2] {Black, White};
         return opponent[color];
     }
