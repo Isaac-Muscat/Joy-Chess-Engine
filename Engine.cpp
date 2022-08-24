@@ -252,6 +252,7 @@ namespace JoyChess {
 				board.squares[move.to] = piece;
 				board.pieceBB[color][genericPiece] &= ~SQUARE[move.from];
 				board.pieceBB[color][genericPiece] |= SQUARE[move.to];
+				board.pieceBB[GetOpponentColor(board.boardStateInfo->sideToMove)][board.boardStateInfo->capturedPiece % NUM_GENERIC_PIECE_TYPES] &= ~SQUARE[move.to];
 
 				board.boardStateInfo->sideToMove = GetOpponentColor(board.boardStateInfo->sideToMove);
 				board.boardStateInfo->capturedPiece = None;
@@ -262,19 +263,49 @@ namespace JoyChess {
 			}
 			case KingCastle:
 			{
+				board.pieceBB[color][genericPiece] &= ~SQUARE[move.from];
+				board.pieceBB[color][genericPiece] |= SQUARE[move.to];
+				board.squares[move.from] = None;
+				board.squares[move.to] = piece;
+				board.boardStateInfo->sideToMove = GetOpponentColor(board.boardStateInfo->sideToMove);
+				board.boardStateInfo->capturedPiece = None;
+				board.boardStateInfo->enPassantTarget = Square::NONE;
+				board.boardStateInfo->halfMoveClock++;
 				if (color == White) {
-
+					board.pieceBB[color][Rook] &= ~SQUARE[h1];
+					board.pieceBB[color][Rook] |= SQUARE[f1];
+					board.squares[h1] = None;
+					board.squares[f1] = WRook;
 				} else {
-					
+					board.pieceBB[GetOpponentColor(board.boardStateInfo->sideToMove)][Rook] &= ~SQUARE[h8];
+					board.pieceBB[GetOpponentColor(board.boardStateInfo->sideToMove)][Rook] |= SQUARE[f8];
+					board.squares[h8] = None;
+					board.squares[f8] = BRook;
 				}
+				break;
 			}
 			case QueenCastle:
 			{
+				board.pieceBB[color][genericPiece] &= ~SQUARE[move.from];
+				board.pieceBB[color][genericPiece] |= SQUARE[move.to];
+				board.squares[move.from] = None;
+				board.squares[move.to] = piece;
+				board.boardStateInfo->sideToMove = GetOpponentColor(board.boardStateInfo->sideToMove);
+				board.boardStateInfo->capturedPiece = None;
+				board.boardStateInfo->enPassantTarget = Square::NONE;
+				board.boardStateInfo->halfMoveClock++;
 				if (color == White) {
-
+					board.pieceBB[color][Rook] &= ~SQUARE[a1];
+					board.pieceBB[color][Rook] |= SQUARE[d1];
+					board.squares[a1] = None;
+					board.squares[d1] = WRook;
 				} else {
-
+					board.pieceBB[GetOpponentColor(board.boardStateInfo->sideToMove)][Rook] &= ~SQUARE[a8];
+					board.pieceBB[GetOpponentColor(board.boardStateInfo->sideToMove)][Rook] |= SQUARE[d8];
+					board.squares[a8] = None;
+					board.squares[d8] = BRook;
 				}
+				break;
 			}
 			case EPCapture:
 			{
@@ -283,16 +314,32 @@ namespace JoyChess {
 				board.squares[move.to] = piece;
 				board.pieceBB[color][genericPiece] &= ~SQUARE[move.from];
 				board.pieceBB[color][genericPiece] |= SQUARE[move.to];
+				board.pieceBB[GetOpponentColor(board.boardStateInfo->sideToMove)][board.boardStateInfo->capturedPiece % NUM_GENERIC_PIECE_TYPES] &= ~SQUARE[move.to];
+				
+				board.boardStateInfo->sideToMove = GetOpponentColor(board.boardStateInfo->sideToMove);
+				board.boardStateInfo->capturedPiece = None;
+				board.boardStateInfo->enPassantTarget = Square::NONE;
+				board.boardStateInfo->halfMoveClock++;
+				break;
+			}
+			case KnightPromotion:
+			{
+				board.pieceBB[color][genericPiece] &= ~SQUARE[move.from];
+				board.pieceBB[color][Knight] |= SQUARE[move.to];
+				board.squares[move.from] = None;
+				board.squares[move.to] = GenericPieceToPiece(Knight, color);
 
 				board.boardStateInfo->sideToMove = GetOpponentColor(board.boardStateInfo->sideToMove);
 				board.boardStateInfo->capturedPiece = None;
 				board.boardStateInfo->enPassantTarget = Square::NONE;
 				board.boardStateInfo->halfMoveClock++;
+				
+				break;
 			}
-			case KnightPromotion:
 			case BishopPromotion:
 			case RookPromotion:
 			case QueenPromotion:
+
         	case KnightPromoCapture:
 			case BishopPromoCapture:
 			case RookPromoCapture:

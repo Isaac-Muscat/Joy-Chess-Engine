@@ -115,6 +115,7 @@ namespace JoyChess {
     inline bool OnEdgeRanks(int i) {
         return (i < NUM_FILES || i >= (NUM_RANKS - 1) * NUM_FILES);
     }
+    inline Piece GenericPieceToPiece(GenericPiece p, int color) { return static_cast<Piece>(p + color * NUM_GENERIC_PIECE_TYPES); }
 
     std::string SquareToString(Square s);
 }
